@@ -150,14 +150,14 @@ namespace {
         void HandleErrorCallback() {
             Local<Value> argv[2];
             argv[0] = Nan::New("error").ToLocalChecked();
-            argv[1] = Nan::Error(AsyncProgressWorker::ErrorMessage());
+            argv[1] = Nan::Error(Nan::AsyncProgressWorker::ErrorMessage());
 
             Local<Object> self = GetFromPersistent("self").As<Object>();
             Nan::MakeCallback(self, "emit", 2, argv);
             HandleOKCallback();
         }
 
-        void Execute(const AsyncProgressWorker::ExecutionProgress& progress) {
+        void Execute(const Nan::AsyncProgressWorker::ExecutionProgress& progress) {
             while(baton->run && nfc_initiator_select_passive_target(baton->pnd, nmMifare, NULL, 0, &baton->nt) > 0) {
                 baton->claimed = true;
                 tag = new NFCCard();
@@ -394,7 +394,7 @@ namespace {
                 return Nan::ThrowError("deviceID parameter is not a string");
             }
             nfc_connstring connstring;
-            String::Utf8Value device(info[0]->ToString());
+            Nan::Utf8String device(Nan::To<String>(info[0]).ToLocalChecked());
             snprintf(connstring, sizeof connstring, "%s", *device);
 
             pnd = nfc_open(context, connstring);
@@ -480,6 +480,7 @@ namespace {
     }
     NAN_MODULE_INIT(init) {
         Local<v8::FunctionTemplate> tpl = Nan::New<v8::FunctionTemplate>(NFC::New);
+        Local <v8::Context> context = Nan::GetCurrentContext();
         tpl->SetClassName(Nan::New("NFC").ToLocalChecked());
         tpl->InstanceTemplate()->SetInternalFieldCount(1);
 
@@ -488,7 +489,7 @@ namespace {
 
         Nan::Export(target, "version", Version);
         Nan::Export(target, "scan", Scan);
-        Nan::Set(target, Nan::New("NFC").ToLocalChecked(), tpl->GetFunction());
+        Nan::Set(target, Nan::New("NFC").ToLocalChecked(), tpl->GetFunction(context).ToLocalChecked());
     };
 }
 
