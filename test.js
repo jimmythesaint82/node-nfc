@@ -13,8 +13,8 @@ function read(deviceID) {
 
   nfcdev.on('read', function(tag) {
     console.log(util.inspect(tag, { depth: null }));
-    if ((!!tag.data) && (!!tag.offset)) console.log(util.inspect(nfc.parse(tag.data.slice(tag.offset)), { depth: null }));
-    nfcdev.stop();
+    //if ((!!tag.data) && (!!tag.offset)) console.log(util.inspect(nfc.parse(tag.data.slice(tag.offset)), { depth: null }));
+    //nfcdev.stop();
   });
 
   nfcdev.on('error', function(err) {
